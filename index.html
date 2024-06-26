@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store Form Data On Google Sheets</title>
+</head>
+
+<body>
+
+    <form method="post" name="contact-form"
+        action="https://script.google.com/macros/s/AKfycbwLSLENSKQH1Tow8jg3m-v-ofcfIyIxdYRnn5ngSEmxNqVW_9GsXF3p3W0mDOJIGytOfw/exec">
+
+        <input type="hidden" name="Time" style="display: none;">
+
+        <label>Name*
+            <input name="Name" placeholder="Name*" type="text" required>
+        </label>
+        <br>
+        <br>
+
+        <label>Email*
+            <input name="Email" placeholder="Email*" type="email" required>
+        </label>
+        <br>
+        <br>
+
+        <label>Phone*
+            <input name="Phone" placeholder="Phone*" type="tel" required>
+        </label>
+        <br>
+        <br>
+
+        <textarea name="Message" placeholder="Message"></textarea>
+        <br>
+        <br>
+
+        <input type="submit" name="submit" value="Submit">
+
+        <div id="thank-msg"></div>
+
+    </form>
+
+    <script>
+
+        // Goolge Sheets Link: https://docs.google.com/spreadsheets/d/1qRulh6n-ZWmcGwrDS_1juV8muCbtUIWlZOBNlVS2Fw4/edit?usp=sharing
+        
+        // Save form data on google sheets
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbwLSLENSKQH1Tow8jg3m-v-ofcfIyIxdYRnn5ngSEmxNqVW_9GsXF3p3W0mDOJIGytOfw/exec'
+
+        const form = document.forms['contact-form'];
+        const thankMsg = document.getElementById('thank-msg');
+
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            const date = new Date();
+            const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            e.currentTarget.Time.value = date.toLocaleDateString('es-ES', options);
+
+            const formBtn = e.currentTarget.submit;
+            formBtn.value = "Processing...";
+            formBtn.disabled = true;
+            thankMsg.textContent = "It's may be take few moment, please wait."
+
+            fetch(scriptURL, { method: 'POST', body: new FormData(form) })
+                .then(response => {
+                    e.target.reset();
+                    formBtn.value = "Submit";
+                    formBtn.disabled = false;
+
+                    thankMsg.textContent = "Thank you for contacting us."
+                    setTimeout(() => {
+                        thankMsg.textContent = "";
+                    }, 3000)
+                })
+                .catch(error => {
+                    console.error('Error! ', error.message);
+
+                    alert("Sorry, something went wrong there. Please try again.");
+                    formBtn.value = "Submit";
+                    formBtn.disabled = false;
+                    thankMsg.textContent = "Sorry, something went wrong there. Please try again.";
+                    setTimeout(() => {
+                        thankMsg.textContent = "";
+                    }, 3000)
+                })
+        })
+
+    </script>
+</body>
+
+</html>
